@@ -18,20 +18,32 @@ export async function deleteCabin(id) {
   }
 }
 
-export async function createEditCabin(newCabin) {
-  const imageName = `${Math.random()}-${newCabin.image.name}`.replace("/", "");
+export async function createEditCabin(newCabin, id) {
+  const hasImagePath = newCabin.image?.startsWith?.(supabaseUrl);
 
-  const imagePath = `${supabaseUrl}/storage/v1/object/public/cabin-images/${imageName}`;
+  const imageName = `${Math.random()}-${newCabin.image.name}`.replaceAll(
+    "/",
+    ""
+  );
+
+  const imagePath = hasImagePath
+    ? newCabin.image
+    : `${supabaseUrl}/storage/v1/object/public/cabin-images/${imageName}`;
   // https://cyuucsgruyivyzlwcrah.supabase.co/storage/v1/object/public/cabin-images//cabin-001.jpg
+  console.log(imageName);
 
-  // creating cabin
-  const { data, error } = await supabase
-    .from("cabins")
-    // cabin data get from Form are equal to supabase table data.that why we can directly insert the new cabin
-    .insert([{ ...newCabin, image: imagePath }])
-    .select()
-    .select()
-    .single();
+  //1) creating/ editing cabin cabin
+  let query = supabase.from("cabins");
+
+  // cabin data get from Form are equal to supabase table data.that why we can directly insert the new cabin
+  // A)create
+  if (!id) query = query.insert([{ ...newCabin, image: imagePath }]);
+
+  // B)edit
+  if (id) query = query.update({ ...newCabin, image: imagePath }).eq("id", id);
+
+  const { data, error } = await query.select().select().single();
+
   if (error) {
     console.error(error);
     throw new Error("Cabins could not be deleted");
