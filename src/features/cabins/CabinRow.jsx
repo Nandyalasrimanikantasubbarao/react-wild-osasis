@@ -7,6 +7,7 @@ import { useCreateCabin } from "./useCreateCabin";
 import Model from "../../ui/Modal";
 import ConfirmDelete from "../../ui/ConfirmDelete";
 import Table from "../../ui/Table";
+import Menus from "../../ui/Menus";
 
 // const TableRow = styled.div`
 //   display: grid;
@@ -84,23 +85,28 @@ function CabinRow({ cabin }) {
         <span>&mdash;</span>
       )}
       <div>
-        <button disabled={isCreating} onClick={handleDuplicate}>
-          <HiSquare2Stack />
-        </button>
         <Model>
-          <Model.Open opens="edit">
-            <button>
-              <HiPencil />
-            </button>
-          </Model.Open>
+          <Menus.Menu>
+            <Menus.Toggle id={cabinId} />
+            <Menus.List id={cabinId}>
+              <Menus.Button icon={<HiSquare2Stack />} onClick={handleDuplicate}>
+                Duplicate
+              </Menus.Button>
+
+              <Model.Open opens="edit">
+                <Menus.Button icon={<HiPencil />}>Edit</Menus.Button>
+              </Model.Open>
+
+              <Model.Open opens="delete">
+                <Menus.Button icon={<HiTrash />}>Delete</Menus.Button>
+              </Model.Open>
+            </Menus.List>
+          </Menus.Menu>
+
           <Model.Window name="edit">
             <CreateCabinForm cabinToEdit={cabin} />
           </Model.Window>
-          <Model.Open opens="delete">
-            <button>
-              <HiTrash />
-            </button>
-          </Model.Open>
+
           <Model.Window name="delete">
             <ConfirmDelete
               resourceName="cabins"
